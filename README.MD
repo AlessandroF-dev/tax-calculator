@@ -33,4 +33,5 @@
 - Spring Validation
 - BCrypt
 - Docker
+  - Utilizaremos dockerfile para subir as dependências do banco de dados (com aberturas para possíveis melhorias e melhor aproveitamento do docker)
 - Spring Data JPA (MySQL)
