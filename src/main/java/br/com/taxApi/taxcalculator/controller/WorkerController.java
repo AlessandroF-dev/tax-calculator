@@ -18,7 +18,7 @@ public class WorkerController {
     private WorkerServiceImpl service;
 
     @PostMapping
-    public ResponseEntity<WorkerDTO> create (WorkerDTO request) {
+    public ResponseEntity<WorkerDTO> create (@RequestBody WorkerDTO request) {
         Optional<WorkerDTO> response = service.create(request);
         if(response.isPresent()){
             return new ResponseEntity<>(response.get(), HttpStatus.CREATED);
