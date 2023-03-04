@@ -11,4 +11,5 @@ public class WorkerDTO {
     private String password;
     private String office;
     private double salary;
+    private boolean active;
 }

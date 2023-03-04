@@ -1,7 +1,8 @@
 package br.com.taxApi.taxcalculator.service;
 
-import br.com.taxApi.taxcalculator.dto.UtiliterCalculator;
+import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
+import br.com.taxApi.taxcalculator.model.Worker;
 
 import java.util.Optional;
 
@@ -9,7 +10,11 @@ public interface WorkerService {
 
     Optional<WorkerDTO> create(WorkerDTO workerDTO);
 
-    Optional<UtiliterCalculator> taxCalculator(Long id);
+    Optional<IncomeTaxDTO> taxCalculator(Long id);
+
+    void encryptWorker(Worker worker);
+
+    boolean autentication(WorkerDTO workerDTO);
 
     boolean delete(Long id);
 }

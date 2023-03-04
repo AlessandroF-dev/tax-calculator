@@ -5,17 +5,21 @@
 ## Endpoint
 
 - POST: Create(WorkerDTO request)
-- DELETE: inactive
-- GET: /[login]&[salary]
+- DELETE: delete (Long id)
+- GET: /[login]&[password] login (String login, String password)
+- GET: /[id] taxCalculator (Long id)
 
 ## Model
 
-"nomeESobrenome": "Teste Teste",
-"idade": "25",
-"login": "teste@dominio.com",
-"password": "password",
-"office": "Manager",
-"salary": 7000.00
+- Worker: 
+```json
+    "name": "Teste Teste",
+    "age": "25",
+    "login": "teste@dominio.com",
+    "password": "password",
+    "office": "Manager",
+    "salary": 7000.00
+```
 
 # Regras de negócio
 
@@ -31,6 +35,7 @@
 - Java 11
 - Spring Boot
 - Spring Validation
+- LOMBOK
 - BCrypt
 - Docker
   - Utilizaremos dockerfile para subir as dependências do banco de dados (com aberturas para possíveis melhorias e melhor aproveitamento do docker)
