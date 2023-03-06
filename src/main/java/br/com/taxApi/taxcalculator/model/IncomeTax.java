@@ -15,4 +15,7 @@ public class IncomeTax {
     private double tax;
     @Column (name = "message")
     private String message;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "worker_id", referencedColumnName = "id")
+    private Worker worker;
 }

@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface WorkerService {
 
+    boolean validPassword (Worker worker);
+
     Optional<WorkerDTO> create(WorkerDTO workerDTO);
 
     Optional<IncomeTaxDTO> taxCalculator(Long id);

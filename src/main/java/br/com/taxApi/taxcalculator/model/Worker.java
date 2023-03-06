@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Data
 public class Worker {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
     @Column(name = "name", nullable = false)
@@ -25,4 +25,7 @@ public class Worker {
     private double salary;
     @Column (name = "active")
     private boolean active;
+    @OneToOne(mappedBy = "worker")
+    private IncomeTax incomeTax;
+
 }
