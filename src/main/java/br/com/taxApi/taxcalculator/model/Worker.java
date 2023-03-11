@@ -25,7 +25,4 @@ public class Worker {
     private double salary;
     @Column (name = "active")
     private boolean active;
-    @OneToOne(mappedBy = "worker")
-    private IncomeTax incomeTax;
-
 }

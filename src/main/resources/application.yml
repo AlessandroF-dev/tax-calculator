@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/workerdb
+    username: worker
+    password: worker
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update

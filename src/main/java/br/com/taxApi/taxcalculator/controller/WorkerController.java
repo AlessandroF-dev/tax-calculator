@@ -3,7 +3,6 @@ package br.com.taxApi.taxcalculator.controller;
 import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
-import br.com.taxApi.taxcalculator.model.WorkerAdm;
 import br.com.taxApi.taxcalculator.service.WorkerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

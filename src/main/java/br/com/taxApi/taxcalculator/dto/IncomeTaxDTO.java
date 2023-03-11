@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class IncomeTaxDTO {
-    private double tax;
+    private String tax;
     private String message;
 }

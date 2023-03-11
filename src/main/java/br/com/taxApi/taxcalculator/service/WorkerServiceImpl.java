@@ -3,9 +3,9 @@ package br.com.taxApi.taxcalculator.service;
 import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
-import br.com.taxApi.taxcalculator.model.IncomeTax;
+import br.com.taxApi.taxcalculator.model.Tax;
 import br.com.taxApi.taxcalculator.model.Worker;
-import br.com.taxApi.taxcalculator.repository.IncomeTaxRepository;
+import br.com.taxApi.taxcalculator.repository.TaxRepository;
 import br.com.taxApi.taxcalculator.repository.WorkerAdmRepository;
 import br.com.taxApi.taxcalculator.repository.WorkerRepository;
 import org.modelmapper.ModelMapper;
@@ -33,7 +33,7 @@ public class WorkerServiceImpl implements WorkerService {
     private WorkerAdmRepository workerAdmRepository;
 
     @Autowired
-    private IncomeTaxRepository taxRepository;
+    private TaxRepository irrfRepository;
 
     @Override
     public boolean validPassword(Worker worker) {
@@ -60,46 +60,17 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Override
     public Optional<IncomeTaxDTO> taxCalculator(Long id) {
-        IncomeTax incomeTax = new IncomeTax();
-        IncomeTaxDTO incomeTaxDTO = mapper.map(incomeTax, IncomeTaxDTO.class);
 
         Optional<Worker> worker = workerRepository.findById(id);
-
         if (worker.isPresent()) {
-            double salary = worker.get().getSalary();
-            if (salary <= 1903.98) {
-                incomeTaxDTO.setMessage("Olá " + worker.get().getName() + ", pelo sálario informado de R$" + worker.get().getSalary() + " você está isento de pagar o imposdo de renda.");
-                mapper.map(incomeTaxDTO, taxRepository.saveAndFlush(incomeTax));
-                return Optional.of(incomeTaxDTO);
-            } else if (salary >= 1903.99 && salary <= 2826.65) {
-                incomeTaxDTO.setTax(0.075);
-                double taxValue = worker.get().getSalary() * incomeTaxDTO.getTax();
-                incomeTaxDTO.setMessage("Olá " + worker.get().getName()
-                        + ", o valor do imposto de renda a partir do sálario informado de R$" + worker.get().getSalary() + " é: R$" + taxValue);
-                mapper.map(incomeTaxDTO, taxRepository.saveAndFlush(incomeTax));
-                return Optional.of(incomeTaxDTO);
-            } else if (salary >= 2826.66 && salary <= 3751.05) {
-                incomeTaxDTO.setTax(0.15);
-                double taxValue = worker.get().getSalary() * incomeTaxDTO.getTax();
-                incomeTaxDTO.setMessage("Olá " + worker.get().getName()
-                        + ", o valor do imposto de renda a partir do sálario informado de R$" + worker.get().getSalary() + " é: R$" + taxValue);
-                mapper.map(incomeTaxDTO, taxRepository.saveAndFlush(incomeTax));
-                return Optional.of(incomeTaxDTO);
-            } else if (salary >= 3751.06 && salary <= 4664.68) {
-                incomeTaxDTO.setTax(0.225);
-                double taxValue = worker.get().getSalary() * incomeTaxDTO.getTax();
-                incomeTaxDTO.setMessage("Olá " + worker.get().getName()
-                        + ", o valor do imposto de renda a partir do sálario informado de R$" + worker.get().getSalary() + " é: R$" + taxValue);
-                mapper.map(incomeTaxDTO, taxRepository.saveAndFlush(incomeTax));
-                return Optional.of(incomeTaxDTO);
-            } else {
-                incomeTaxDTO.setTax(0.275);
-                double taxValue = worker.get().getSalary() * incomeTaxDTO.getTax();
-                incomeTaxDTO.setMessage("Olá " + worker.get().getName()
-                        + ", o valor do imposto de renda a partir do sálario informado de R$" + worker.get().getSalary() + " é: R$" + taxValue);
-                mapper.map(incomeTaxDTO, taxRepository.saveAndFlush(incomeTax));
-                return Optional.of(incomeTaxDTO);
-            }
+            Tax irrf = irrfRepository.findTax(worker.get().getSalary());
+            double incomeTax = worker.get().getSalary() * irrf.getTax(); //0.275
+
+            IncomeTaxDTO incomeTaxDTO = new IncomeTaxDTO();
+            incomeTaxDTO.setMessage(mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax));
+
+            incomeTaxDTO.setTax((irrf.getTax() == 0) ? "ISENTO" : ((irrf.getTax() * 100) + "%"));
+            return Optional.of(incomeTaxDTO);
         }
         return Optional.empty();
     }
@@ -107,7 +78,7 @@ public class WorkerServiceImpl implements WorkerService {
     @Override
     public void encryptWorker(Worker worker) {
         String generatedSalt = BCrypt.gensalt();
-        System.out.println("SAL GERADO --> "+generatedSalt);
+        System.out.println("SAL GERADO --> " + generatedSalt);
         String encryptedPassword = BCrypt.hashpw(worker.getPassword(), generatedSalt);
 
         worker.setPassword(encryptedPassword);
@@ -135,5 +106,11 @@ public class WorkerServiceImpl implements WorkerService {
             return true;
         }
         return false;
+    }
+
+    private String mountMessage(String name, double salary, double taxValue) {
+        return "Olá " + name
+                + ", o valor do imposto de renda a partir do sálario informado de R$" + salary +
+                " é: R$" + taxValue;
     }
 }
