@@ -1,10 +1,12 @@
 package br.com.taxApi.taxcalculator.service;
 
 import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
+import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
 import br.com.taxApi.taxcalculator.model.IncomeTax;
 import br.com.taxApi.taxcalculator.model.Worker;
 import br.com.taxApi.taxcalculator.repository.IncomeTaxRepository;
+import br.com.taxApi.taxcalculator.repository.WorkerAdmRepository;
 import br.com.taxApi.taxcalculator.repository.WorkerRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +30,29 @@ public class WorkerServiceImpl implements WorkerService {
     private WorkerRepository workerRepository;
 
     @Autowired
+    private WorkerAdmRepository workerAdmRepository;
+
+    @Autowired
     private IncomeTaxRepository taxRepository;
 
     @Override
     public boolean validPassword(Worker worker) {
-
         if (PASSWORD_PATTERN.matcher(worker.getPassword()).matches()) {
             System.out.print("The Password " + worker.getPassword() + " is valid");
-        }
-        else {
+            return true;
+        } else {
             System.out.print("The Password " + worker.getPassword() + " isn't valid");
+            return false;
         }
-        return false;
     }
 
     @Override
     public Optional<WorkerDTO> create(WorkerDTO request) {
         Worker worker = mapper.map(request, Worker.class);
+        worker.setActive(true);
         WorkerDTO response = mapper.map(workerRepository.save(worker), WorkerDTO.class);
-        if (validPassword(worker)){
+
+        if (validPassword(worker)) {
             return Optional.of(response);
         }
         return Optional.empty();
@@ -101,7 +107,7 @@ public class WorkerServiceImpl implements WorkerService {
     @Override
     public void encryptWorker(Worker worker) {
         String generatedSalt = BCrypt.gensalt();
-
+        System.out.println("SAL GERADO --> "+generatedSalt);
         String encryptedPassword = BCrypt.hashpw(worker.getPassword(), generatedSalt);
 
         worker.setPassword(encryptedPassword);
@@ -109,10 +115,10 @@ public class WorkerServiceImpl implements WorkerService {
     }
 
     @Override
-    public boolean autentication(WorkerDTO workerDTO) {
-        String password = workerDTO.getPassword();
+    public boolean autentication(WorkerAdmDTO workerAdmDTO) {
+        String password = workerAdmDTO.getPassword();
 
-        Worker worker = workerRepository.findByLogin(workerDTO.getLogin());
+        Worker worker = workerRepository.findByLogin(workerAdmDTO.getLogin());
         String encryptedPassword = worker.getPassword();
 
         boolean autenticator = BCrypt.checkpw(password, encryptedPassword);

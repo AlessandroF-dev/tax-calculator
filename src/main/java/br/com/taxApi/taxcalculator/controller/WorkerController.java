@@ -1,7 +1,9 @@
 package br.com.taxApi.taxcalculator.controller;
 
 import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
+import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
+import br.com.taxApi.taxcalculator.model.WorkerAdm;
 import br.com.taxApi.taxcalculator.service.WorkerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,11 +29,11 @@ public class WorkerController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<Boolean> loginValidation(@RequestBody WorkerDTO workerDTO) {
-        if (service.autentication(workerDTO)) {
-            return ResponseEntity.ok(service.autentication(workerDTO));
+    public ResponseEntity<Boolean> loginValidation(@RequestBody WorkerAdmDTO workerAdmDTO) {
+        if (service.autentication(workerAdmDTO)) {
+            return ResponseEntity.ok(service.autentication(workerAdmDTO));
         }
-        return new ResponseEntity<>(service.autentication(workerDTO), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(service.autentication(workerAdmDTO), HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{id}")
