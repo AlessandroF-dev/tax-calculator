@@ -15,4 +15,3 @@ public interface TaxRepository extends JpaRepository<Tax, Long> {
     @Query(value = "SELECT * FROM tax WHERE calculator_tier_begin <= :salary AND calculator_tier_end >= :salary", nativeQuery = true)
     Tax findTax(double salary);
 }
-//
