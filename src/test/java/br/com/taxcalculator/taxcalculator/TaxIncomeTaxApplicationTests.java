@@ -1,31 +1,30 @@
 package br.com.taxcalculator.taxcalculator;
 
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
-import br.com.taxApi.taxcalculator.model.Worker;
 import br.com.taxApi.taxcalculator.repository.WorkerRepository;
 import br.com.taxApi.taxcalculator.service.WorkerService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class TaxIncomeTaxApplicationTests {
 
-	@Autowired
-	private WorkerService service;
+    @Autowired
+    private WorkerService service;
 
-	@Autowired
-	private WorkerRepository repository;
+    @Autowired
+    private WorkerRepository repository;
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 //
 //	@BeforeEach
 //	public void setUp (){
@@ -39,25 +38,25 @@ class TaxIncomeTaxApplicationTests {
 //		worker.setActive(true);
 //	}
 
-	@Test
-	public void shouldCreateWorker() {
-		WorkerDTO request = new WorkerDTO();
-		request.setName("Alessandro");
-		request.setEmail("alessandro@teste.com");
-		request.setPassword("Alessandro123**");
-		request.setOffice("Dev");
-		request.setSalary(8000.00);
-		request.setAge(23);
-		request.setActive(true);
-		Optional<WorkerDTO> response = service.create(request);
-		Assertions.assertNotNull(response);
+    @Test
+    public void shouldCreateWorker() {
+        WorkerDTO request = new WorkerDTO();
+        request.setName("Alessandro");
+        request.setEmail("alessandro@teste.com");
+        request.setPassword("Alessandro123**");
+        request.setOffice("Dev");
+        request.setSalary(8000.00);
+        request.setAge(23);
+        request.setActive(true);
+        Optional<WorkerDTO> response = service.create(request);
+        Assertions.assertNotNull(response);
 
-		assertEquals(request.getName(), response.get().getName());
-		assertEquals(request.getEmail(), response.get().getEmail());
-		assertEquals(request.getPassword(), response.get().getPassword());
-		assertEquals(request.getOffice(), response.get().getOffice());
-		assertEquals(request.getSalary(), response.get().getSalary());
-		assertEquals(request.getAge(), response.get().getAge());
-		assertTrue(response.get().isActive());
-	}
+        assertEquals(request.getName(), response.get().getName());
+        assertEquals(request.getEmail(), response.get().getEmail());
+        assertEquals(request.getPassword(), response.get().getPassword());
+        assertEquals(request.getOffice(), response.get().getOffice());
+        assertEquals(request.getSalary(), response.get().getSalary());
+        assertEquals(request.getAge(), response.get().getAge());
+        assertTrue(response.get().isActive());
+    }
 }

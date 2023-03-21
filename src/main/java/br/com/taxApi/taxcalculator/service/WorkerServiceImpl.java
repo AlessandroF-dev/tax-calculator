@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,6 +86,7 @@ public class WorkerServiceImpl implements WorkerService {
                 .map(w -> mapper.map(w, WorkerDTO.class))
                 .collect(Collectors.toList());
     }
+
     private boolean authenticate(WorkerAdmDTO admDTO) {
         Optional<Worker> worker = repository.findByEmail(admDTO.getEmail());
         return worker.filter(value -> BCrypt.checkpw(admDTO.getPassword(), value.getPassword())).isPresent();

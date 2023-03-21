@@ -1,6 +1,5 @@
 package br.com.taxApi.taxcalculator.utils;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.util.regex.Pattern;

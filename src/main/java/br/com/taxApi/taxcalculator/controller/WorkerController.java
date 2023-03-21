@@ -4,7 +4,6 @@ import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
 import br.com.taxApi.taxcalculator.service.WorkerService;
-import br.com.taxApi.taxcalculator.service.WorkerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ public class WorkerController {
 
     @Autowired
     private WorkerService service;
-
 
     @PostMapping
     public ResponseEntity<WorkerDTO> create(@RequestBody WorkerDTO request) {
