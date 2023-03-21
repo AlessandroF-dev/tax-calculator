@@ -3,6 +3,7 @@ package br.com.taxApi.taxcalculator.controller;
 import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
+import br.com.taxApi.taxcalculator.service.WorkerService;
 import br.com.taxApi.taxcalculator.service.WorkerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,11 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/tax-calculator")
+@RequestMapping("/tax-api")
 public class WorkerController {
 
     @Autowired
-    private WorkerServiceImpl service;
+    private WorkerService service;
+
 
     @PostMapping
     public ResponseEntity<WorkerDTO> create(@RequestBody WorkerDTO request) {
@@ -28,17 +30,9 @@ public class WorkerController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @GetMapping("/login")
-    public ResponseEntity<Boolean> loginValidation(@RequestBody WorkerAdmDTO workerAdmDTO) {
-        if (service.autentication(workerAdmDTO)) {
-            return ResponseEntity.ok(service.autentication(workerAdmDTO));
-        }
-        return new ResponseEntity<>(service.autentication(workerAdmDTO), HttpStatus.BAD_REQUEST);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<IncomeTaxDTO> taxCalculator(@PathVariable("id") Long id) {
-        Optional<IncomeTaxDTO> response = service.taxCalculator(id);
+    @PostMapping("/calculator")
+    public ResponseEntity<IncomeTaxDTO> taxCalculator(@RequestBody WorkerAdmDTO admDTO) {
+        Optional<IncomeTaxDTO> response = service.taxCalculator(admDTO);
         if (response.isPresent()) {
             return ResponseEntity.ok(response.get());
         }
@@ -46,7 +40,7 @@ public class WorkerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WorkerDTO>> getAll (){
+    public ResponseEntity<List<WorkerDTO>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 

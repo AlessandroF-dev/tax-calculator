@@ -15,8 +15,8 @@ public class Worker {
     private  String name;
     @Column (name = "age", nullable = false)
     private  int age;
-    @Column (name = "login", nullable = false)
-    private  String login;
+    @Column (name = "email", nullable = false)
+    private  String email;
     @Column (name = "password", nullable = false)
     private  String password;
     @Column (name = "office", nullable = false)

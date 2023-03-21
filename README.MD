@@ -1,13 +1,11 @@
 # Tax Calculator
 
-- Este sistema tem como objetivo calcular o valor do imposto de renda.
+- Este sistema tem como objetivo cadastrar um usuário e calcular o valor do imposto de renda.
 
-## Endpoint
 
-- POST: Create(WorkerDTO request)
-- DELETE: delete (Long id)
-- GET: /[login]&[password] login (String login, String password)
-- GET: /[id] taxCalculator (Long id)
+- POST: /[tax-api] Create(WorkerDTO request)
+- DELETE: /[id] delete (Long id)
+- POST: /[calculator] taxCalculator (WorkerAdmDTO admDTO)
 
 ## Model
 
@@ -15,7 +13,7 @@
 ```json
     "name": "Teste Teste",
     "age": "25",
-    "login": "teste@dominio.com",
+    "email": "teste@dominio.com",
     "password": "password",
     "office": "Manager",
     "salary": 7000.00
@@ -23,12 +21,11 @@
 
 # Regras de negócio
 
-- O mesmo e-mail só poderá ser cadastrado uma vez 
-- A senha deve conter de 8 a 16 caracteres, um dígito, uma letra minúscula, uma letra maiúscula, um caractere especial e não conter espaçõ em branco 
-- O delete ira inativar o usuário
-- Sálarios iguais ou menores que R$1.903,98 deverão informar ao trabalhador que ele esta isento de pagar o imposto de renda, pois são isentos 
-- O salário não pode conter mais do que 10 dígitos 
-- Nome e sobrenome não podem passar de 30 caracteres, e não pode conter caracteres especiais ou número
+- O mesmo e-mail só poderá ser cadastrado uma vez [TO-DO]
+- Nome e sobrenome não podem passar de 100 caracteres, e não pode conter caracteres especiais ou número [TO-DO]
+- A senha deve conter de 8 a 16 caracteres, um dígito, uma letra minúscula, uma letra maiúscula, um caractere especial e não conter espaço em branco [OK]
+- O delete será lógico que irá inativar o usuário [OK]
+- Sálarios iguais ou menores que R$1.903,98 deverão informar ao trabalhador que ele esta isento de pagar o imposto de renda, pois são isentos [OK]
 
 ## Tecnologias
 

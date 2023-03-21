@@ -6,8 +6,8 @@ import br.com.taxApi.taxcalculator.dto.WorkerDTO;
 import br.com.taxApi.taxcalculator.model.Tax;
 import br.com.taxApi.taxcalculator.model.Worker;
 import br.com.taxApi.taxcalculator.repository.TaxRepository;
-import br.com.taxApi.taxcalculator.repository.WorkerAdmRepository;
 import br.com.taxApi.taxcalculator.repository.WorkerRepository;
+import br.com.taxApi.taxcalculator.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,98 +23,72 @@ import java.util.stream.Collectors;
 @Slf4j
 public class WorkerServiceImpl implements WorkerService {
 
-    private static final String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$*%^&+=])(?=\\S+$).{8,16}$";
-
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
-
     @Autowired
     private ModelMapper mapper;
 
     @Autowired
-    private WorkerRepository workerRepository;
+    private WorkerRepository repository;
 
     @Autowired
-    private WorkerAdmRepository workerAdmRepository;
-
-    @Autowired
-    private TaxRepository irrfRepository;
+    private TaxRepository taxRepository;
 
     @Override
     public Optional<WorkerDTO> create(WorkerDTO request) {
-        if (validPassword(request.getPassword())) {
-            request.setPassword(encryptPassword(request.getPassword()));
-
+        if (SecurityUtils.validPassword((request.getPassword()))) {
+            request.setPassword(SecurityUtils.encryptPassword(request.getPassword()));
             Worker worker = mapper.map(request, Worker.class);
-            WorkerDTO response = mapper.map(workerRepository.save(worker), WorkerDTO.class);
+            WorkerDTO response = mapper.map(repository.save(worker), WorkerDTO.class);
+            log.info("Successfully registered");
+
             return Optional.of(response);
         }
+        log.error("Invalid password! Please check that the password matches the requirements");
         return Optional.empty();
     }
 
-    @Override
-    public Optional<IncomeTaxDTO> taxCalculator(Long id) {
-        Optional<Worker> worker = workerRepository.findById(id);
-        if (worker.isPresent()) {
-            Tax irrf = irrfRepository.findTax(worker.get().getSalary());//salary
-            double incomeTax = worker.get().getSalary() * irrf.getTax(); //0.275
+    public Optional<IncomeTaxDTO> taxCalculator(WorkerAdmDTO admDTO) {
+        log.info("Authenticating worker");
+        if (authenticate(admDTO)) {
+            Optional<Worker> worker = repository.findByEmail(admDTO.getEmail());
+            log.info("Authenticated with sucess");
+            if (worker.isPresent()) {
+                log.info("Calculating tax...");
+                Tax irrf = taxRepository.findTax(worker.get().getSalary());
+                double incomeTax = worker.get().getSalary() * irrf.getTax();
+                IncomeTaxDTO incomeTaxDTO = new IncomeTaxDTO();
+                incomeTaxDTO.setMessage(SecurityUtils.mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax));
 
-            IncomeTaxDTO incomeTaxDTO = new IncomeTaxDTO();
-            incomeTaxDTO.setMessage(mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax));
-
-            incomeTaxDTO.setTax((irrf.getTax() == 0) ? "ISENTO" : ((irrf.getTax() * 100) + "%"));
-            return Optional.of(incomeTaxDTO);
+                incomeTaxDTO.setTax((irrf.getTax() == 0) ? "ISENTO" : ((irrf.getTax() * 100) + "%"));
+                return Optional.of(incomeTaxDTO);
+            }
         }
+        log.error("Incorrect login or password. Please check and try again");
         return Optional.empty();
-    }
-    private String encryptPassword(String password) {
-        String generatedSalt = BCrypt.gensalt();
-        System.out.println("SAL GERADO --> " + generatedSalt);
-        return BCrypt.hashpw(password, generatedSalt);
-    }
-
-    @Override
-    public boolean autentication(WorkerAdmDTO workerAdmDTO) {
-        String password = workerAdmDTO.getPassword();
-
-        Worker worker = workerRepository.findByLogin(workerAdmDTO.getLogin());
-        String encryptedPassword = worker.getPassword();
-
-        boolean autenticator = BCrypt.checkpw(password, encryptedPassword);
-
-        return autenticator;
     }
 
     @Override
     public boolean delete(Long id) {
-        Optional<Worker> worker = workerRepository.findById(id);
+        Optional<Worker> worker = repository.findById(id);
         if (worker.isPresent()) {
             worker.get().setActive(false);
-            workerRepository.save(worker.get());
+            repository.save(worker.get());
+            log.info("Deleting record");
             return true;
         }
+        log.error("This record isn't exists");
         return false;
     }
 
     @Override
     public List<WorkerDTO> getAll() {
-        return workerRepository.findAll()
+        log.info("Searching all...");
+        return repository.findAll()
                 .stream()
                 .map(w -> mapper.map(w, WorkerDTO.class))
                 .collect(Collectors.toList());
     }
-
-    private String mountMessage(String name, double salary, double taxValue) {
-        return "Olá " + name
-                + ", o valor do imposto de renda a partir do sálario informado de R$" + salary +
-                " é: R$" + taxValue;
-    }
-    private boolean validPassword(String password) {
-        if (PASSWORD_PATTERN.matcher(password).matches()) {
-            log.info("Valid password");
-            return true;
-        } else {
-            log.info("Invalid password");
-            return false;
-        }
+    private boolean authenticate(WorkerAdmDTO admDTO) {
+        Optional<Worker> worker = repository.findByEmail(admDTO.getEmail());
+        return worker.filter(value -> BCrypt.checkpw(admDTO.getPassword(), value.getPassword())).isPresent();
     }
 }

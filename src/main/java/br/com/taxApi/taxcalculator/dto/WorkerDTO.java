@@ -7,7 +7,7 @@ public class WorkerDTO {
     private Long id;
     private String name;
     private int age;
-    private String login;
+    private String email;
     private String password;
     private String office;
     private double salary;
