@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class SecurityUtils {
 
-    private static final String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$*%^&+=])(?=\\S+$).{8,16}$";
+    private static final String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$*%^&+=])(?=\\S+$).{8,20}$";
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
 
