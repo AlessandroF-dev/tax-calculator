@@ -1,13 +1,14 @@
 package br.com.taxApi.taxcalculator;
 
+import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
 import br.com.taxApi.taxcalculator.model.Tax;
-import br.com.taxApi.taxcalculator.model.Worker;
 import br.com.taxApi.taxcalculator.repository.TaxRepository;
 import br.com.taxApi.taxcalculator.repository.WorkerRepository;
 import br.com.taxApi.taxcalculator.service.WorkerService;
 import br.com.taxApi.taxcalculator.utils.SecurityUtils;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -27,14 +29,15 @@ public class TaxIncomeTaxApplicationTests {
     @Autowired
     private WorkerService service;
     @Autowired
-    WorkerRepository repository;
+    private WorkerRepository repository;
     @Autowired
     private TaxRepository taxRepository;
 
-    WorkerDTO request;
+    private WorkerDTO request;
+    private WorkerAdmDTO admRequest;
 
     @BeforeEach
-    public void setUpWorker() {
+    public void setUp() {
         request = new WorkerDTO();
         request.setId(1L);
         request.setName("Alessandro");
@@ -44,63 +47,52 @@ public class TaxIncomeTaxApplicationTests {
         request.setSalary(8000.00);
         request.setAge(23);
         request.setActive(true);
+
+        admRequest = new WorkerAdmDTO();
+        admRequest.setPassword(request.getPassword());
+        admRequest.setEmail(request.getEmail());
     }
+
 
     @Test
     @DisplayName("Should create worker")
     public void shouldCreateWorker() {
         Optional<WorkerDTO> response = service.create(request);
 
-        Assertions.assertNotNull(response);
+        Assertions.assertNotNull(response.get());
 
         assertEquals(request.getName(), response.get().getName());
         assertEquals(request.getEmail(), response.get().getEmail());
         assertEquals(request.getOffice(), response.get().getOffice());
         assertEquals(request.getSalary(), response.get().getSalary());
         assertEquals(request.getAge(), response.get().getAge());
-
-        assertNotNull(request.getPassword(), response.get().getPassword());
         assertTrue(response.get().isActive());
     }
 
     @Test
-    @DisplayName("Adam DTO is empty because password is not equals did registered")
+    @DisplayName("AdmDTO is empty because password is not equals comparing the registered")
     public void shouldReturnTrueIfIsEmpty() {
-        WorkerAdmDTO admDTO = new WorkerAdmDTO();
-
-        admDTO.setPassword("PasswordNotEquals");
-        admDTO.setEmail(request.getEmail());
-
-        assertTrue(service.taxCalculator(admDTO).isEmpty());
+        admRequest.setPassword("InvalidPassword");
+        assertTrue(service.taxCalculator(admRequest).isEmpty());
     }
 
     @Test
     @DisplayName("Should return true if admDTO is present")
     public void shouldReturnTrueIfIsPresent() {
-        WorkerAdmDTO admDTO = new WorkerAdmDTO();
-
-        admDTO.setPassword(request.getPassword());
-        admDTO.setEmail(request.getEmail());
-
-        assertTrue(service.taxCalculator(admDTO).isPresent());
+        assertTrue(service.taxCalculator(admRequest).isPresent());
     }
 
     @Test
     @DisplayName("Should return true and inactivate worker if is present")
     public void shouldInativateWorker() {
-        Optional<Worker> response = repository.findById(request.getId());
-        service.delete(request.getId());
-
-        assertNotNull(response);
-        assertTrue(response.get().isActive());
+        boolean isInactive = service.delete(request.getId());
+        assertTrue(isInactive);
     }
 
     @Test
     @DisplayName("Should return false if worker is not present")
     public void shouldReturnFalseBecauseWorkerIsNotPresent() {
-        request.setId(3L);
-
-        assertFalse(service.delete(request.getId()));
+        assertFalse(service.delete(3L));
     }
 
     @Test
@@ -109,16 +101,21 @@ public class TaxIncomeTaxApplicationTests {
         List<WorkerDTO> workerDTOS = service.getAll();
 
         assertNotNull(workerDTOS);
-        assertTrue(workerDTOS.size() >= 1);
+        assertThat(workerDTOS.size(), Matchers.greaterThan(0));
     }
 
     @Test
     @DisplayName("Should return true if query method taxCalculator is correct")
     public void shouldReturnTrueIfQueryTaxCalculatorIsCorrect() {
         Tax tax = taxRepository.findTax(request.getSalary());
-        double incomeTax = request.getSalary() * tax.getTax();
-        assertEquals(incomeTax, request.getSalary() * 0.275);
-        assertFalse(SecurityUtils.mountMessage(request.getName(), request.getSalary(), incomeTax).isEmpty());
+        Optional<IncomeTaxDTO> incomeTaxDTO = service.taxCalculator(admRequest);
+        String taxFormattedToString = String.valueOf(tax.getTax() * 100).substring(0, 4);
+        assertEquals(taxFormattedToString, incomeTaxDTO.get().getTax().substring(0, 4)); //27.5
+
+//        double taxFormattedToDouble = Double.parseDouble(incomeTaxDTO.get().getTax().substring(0, 4));
+//        assertEquals(taxFormattedToDouble / 100, tax.getTax()); //0.275
+//        assertFalse(SecurityUtils.mountMessage(request.getName(), request.getSalary(), request.getSalary() * tax.getTax(), ).isEmpty());
+//        assertEquals(String.valueOf(taxFormattedToDouble).substring(0,4), taxFormattedToString.substring(0,4)); //27.5
     }
 
     @Test

@@ -46,6 +46,7 @@ public class WorkerServiceImpl implements WorkerService {
     }
 
     public Optional<IncomeTaxDTO> taxCalculator(WorkerAdmDTO admDTO) {
+        IncomeTaxDTO incomeTaxDTO = new IncomeTaxDTO();
         log.info("Authenticating worker");
         if (authenticate(admDTO)) {
             Optional<Worker> worker = repository.findByEmail(admDTO.getEmail());
@@ -53,11 +54,15 @@ public class WorkerServiceImpl implements WorkerService {
             if (worker.isPresent()) {
                 log.info("Calculating tax...");
                 Tax irrf = taxRepository.findTax(worker.get().getSalary());
+                if (irrf.getTax() == 0.0) {
+                    incomeTaxDTO.setMessage(SecurityUtils.mountMessageIsento(worker.get().getName(), worker.get().getSalary()));
+                    incomeTaxDTO.setTax("ISENTO (A)");
+                    return Optional.of(incomeTaxDTO);
+                }
                 double incomeTax = worker.get().getSalary() * irrf.getTax();
-                IncomeTaxDTO incomeTaxDTO = new IncomeTaxDTO();
-                incomeTaxDTO.setMessage(SecurityUtils.mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax));
-
-                incomeTaxDTO.setTax((irrf.getTax() == 0) ? "ISENTO" : ((irrf.getTax() * 100) + "%"));
+                incomeTaxDTO.setMessage(SecurityUtils
+                        .mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax, String.valueOf(irrf.getTax() * 100).substring(0, 5)));
+                incomeTaxDTO.setTax(String.valueOf(irrf.getTax() * 100).substring(0, 5));
                 return Optional.of(incomeTaxDTO);
             }
         }

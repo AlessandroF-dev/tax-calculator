@@ -2,6 +2,7 @@ package br.com.taxApi.taxcalculator.utils;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import java.text.DecimalFormat;
 import java.util.regex.Pattern;
 
 public class SecurityUtils {
@@ -22,9 +23,14 @@ public class SecurityUtils {
         return false;
     }
 
-    public static String mountMessage(String name, double salary, double taxValue) {
-        return "Olá " + name
-                + ", o valor do imposto de renda a partir do sálario informado de R$" + salary +
-                " é: R$" + taxValue;
+    public static String mountMessage(String name, double salary, double taxValue, String percentage) {
+        DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+        return "Olá " + name + ", o valor do imposto de renda a partir do sálario informado de R$" + salary + " é: " + "R$" + decimalFormat.format(taxValue) + " Porcentagem cobrada: " + percentage.substring(0, 5) + "%";
+
     }
+
+    public static String mountMessageIsento(String name, double salary) {
+        return "Olá " + name + ", pelo valor do salário informado R$" + salary + " você esta isento de pagar o imposto de renda!";
+    }
+
 }
