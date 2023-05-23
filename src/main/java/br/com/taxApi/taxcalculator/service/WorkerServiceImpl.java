@@ -4,7 +4,9 @@ import br.com.taxApi.taxcalculator.dto.IncomeTaxDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
 import br.com.taxApi.taxcalculator.model.Tax;
+import br.com.taxApi.taxcalculator.model.TaxCollected;
 import br.com.taxApi.taxcalculator.model.Worker;
+import br.com.taxApi.taxcalculator.repository.TaxMeterRepository;
 import br.com.taxApi.taxcalculator.repository.TaxRepository;
 import br.com.taxApi.taxcalculator.repository.WorkerRepository;
 import br.com.taxApi.taxcalculator.utils.SecurityUtils;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,10 +28,10 @@ public class WorkerServiceImpl implements WorkerService {
 
     @Autowired
     private ModelMapper mapper;
-
     @Autowired
     private WorkerRepository repository;
-
+    @Autowired
+    private TaxMeterRepository taxMeterRepository;
     @Autowired
     private TaxRepository taxRepository;
 
@@ -63,6 +67,13 @@ public class WorkerServiceImpl implements WorkerService {
                 incomeTaxDTO.setMessage(SecurityUtils
                         .mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax, String.valueOf(irrf.getTax() * 100).substring(0, 5)));
                 incomeTaxDTO.setTax(String.valueOf(irrf.getTax() * 100).substring(0, 5));
+
+                if (admDTO.isWantToPay()) {
+                    TaxCollected taxCollected = new TaxCollected();
+                    taxCollected.setUserEmail(admDTO.getEmail());
+                    taxCollected.setAmountRaised(incomeTax);
+                    taxMeterRepository.save(taxCollected);
+                }
                 return Optional.of(incomeTaxDTO);
             }
         }
@@ -81,6 +92,18 @@ public class WorkerServiceImpl implements WorkerService {
         }
         log.error("This record isn't exists");
         return false;
+    }
+
+    @Override
+    public String calculatesTotalCollected() {
+        double value = 0;
+        log.info("Searching total value of tax meter...");
+        DecimalFormat formatter = new DecimalFormat();
+
+        for (TaxCollected taxCollected : taxMeterRepository.findAll()) {
+            value += taxCollected.getAmountRaised();
+        }
+        return "Valor total arrecadado pelo imposto de renda R$" + formatter.format(value) + " " + LocalDate.now();
     }
 
     @Override

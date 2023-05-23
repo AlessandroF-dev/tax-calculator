@@ -6,4 +6,5 @@ import lombok.Data;
 public class WorkerAdmDTO {
     private String email;
     private String password;
+    private boolean wantToPay;
 }

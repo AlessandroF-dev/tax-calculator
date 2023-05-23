@@ -16,4 +16,6 @@ public interface WorkerService {
     List<WorkerDTO> getAll();
 
     boolean delete(Long id);
+
+    String calculatesTotalCollected();
 }
