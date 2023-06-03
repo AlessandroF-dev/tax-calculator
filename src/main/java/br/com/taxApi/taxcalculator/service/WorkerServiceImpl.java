@@ -13,6 +13,8 @@ import br.com.taxApi.taxcalculator.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +27,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class WorkerServiceImpl implements WorkerService {
-
     @Autowired
     private ModelMapper mapper;
     @Autowired
@@ -34,13 +35,15 @@ public class WorkerServiceImpl implements WorkerService {
     private TaxMeterRepository taxMeterRepository;
     @Autowired
     private TaxRepository taxRepository;
-
+    @Autowired
+    private CacheManager cacheManager;
     @Override
     public Optional<WorkerDTO> create(WorkerDTO request) {
         if (SecurityUtils.validPassword((request.getPassword()))) {
             request.setPassword(SecurityUtils.encryptPassword(request.getPassword()));
             Worker worker = mapper.map(request, Worker.class);
             WorkerDTO response = mapper.map(repository.save(worker), WorkerDTO.class);
+
             log.info("Successfully registered");
 
             return Optional.of(response);
@@ -69,10 +72,16 @@ public class WorkerServiceImpl implements WorkerService {
                 incomeTaxDTO.setTax(String.valueOf(irrf.getTax() * 100).substring(0, 5));
 
                 if (admDTO.isWantToPay()) {
-                    TaxCollected taxCollected = new TaxCollected();
-                    taxCollected.setUserEmail(admDTO.getEmail());
-                    taxCollected.setAmountRaised(incomeTax);
-                    taxMeterRepository.save(taxCollected);
+                    if (!taxMeterRepository.existsByUserEmail(admDTO.getEmail())) {
+                        log.info("Creating a new record in taxMeter...");
+                        TaxCollected taxCollected = new TaxCollected();
+                        taxCollected.setUserEmail(admDTO.getEmail());
+                        taxCollected.setAmountRaised(incomeTax);
+
+                        taxMeterRepository.save(taxCollected);
+                    } else {
+                        log.info("Record already exist");
+                    }
                 }
                 return Optional.of(incomeTaxDTO);
             }
@@ -104,6 +113,12 @@ public class WorkerServiceImpl implements WorkerService {
             value += taxCollected.getAmountRaised();
         }
         return "Valor total arrecadado pelo imposto de renda R$" + formatter.format(value) + " " + LocalDate.now();
+    }
+
+    @Scheduled(cron = "0 */2 * ? * *")
+    private void invalidCache() {
+        cacheManager.getCache("taxMeter").clear();
+        log.info("Clearing cache taxMeter");
     }
 
     @Override
