@@ -5,8 +5,6 @@ import br.com.taxApi.taxcalculator.dto.WorkerAdmDTO;
 import br.com.taxApi.taxcalculator.dto.WorkerDTO;
 import br.com.taxApi.taxcalculator.service.WorkerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +19,6 @@ public class WorkerController {
 
     @Autowired
     private WorkerService service;
-
-    @Autowired
-    private CacheManager cacheManager;
 
     @PostMapping
     public ResponseEntity<WorkerDTO> create(@RequestBody WorkerDTO request) {

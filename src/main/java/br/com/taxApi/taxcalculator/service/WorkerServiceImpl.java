@@ -39,16 +39,20 @@ public class WorkerServiceImpl implements WorkerService {
     private CacheManager cacheManager;
     @Override
     public Optional<WorkerDTO> create(WorkerDTO request) {
-        if (SecurityUtils.validPassword((request.getPassword()))) {
-            request.setPassword(SecurityUtils.encryptPassword(request.getPassword()));
-            Worker worker = mapper.map(request, Worker.class);
-            WorkerDTO response = mapper.map(repository.save(worker), WorkerDTO.class);
+        if(!repository.existsByEmail(request.getEmail())) {
+            if (SecurityUtils.validPassword((request.getPassword()))) {
+                request.setPassword(SecurityUtils.encryptPassword(request.getPassword()));
+                Worker worker = mapper.map(request, Worker.class);
+                WorkerDTO response = mapper.map(repository.save(worker), WorkerDTO.class);
 
-            log.info("Successfully registered");
+                log.info("Successfully registered");
 
-            return Optional.of(response);
+                return Optional.of(response);
+            }else{
+                log.error("Invalid password! Please check that the password matches the requirements");
+            }
         }
-        log.error("Invalid password! Please check that the password matches the requirements");
+        log.error("There is already a user with the registered email");
         return Optional.empty();
     }
 
