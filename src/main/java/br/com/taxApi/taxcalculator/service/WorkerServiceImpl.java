@@ -37,9 +37,10 @@ public class WorkerServiceImpl implements WorkerService {
     private TaxRepository taxRepository;
     @Autowired
     private CacheManager cacheManager;
+
     @Override
     public Optional<WorkerDTO> create(WorkerDTO request) {
-        if(!repository.existsByEmail(request.getEmail())) {
+        if (!repository.existsByEmail(request.getEmail())) {
             if (SecurityUtils.validPassword((request.getPassword()))) {
                 request.setPassword(SecurityUtils.encryptPassword(request.getPassword()));
                 Worker worker = mapper.map(request, Worker.class);
@@ -48,7 +49,7 @@ public class WorkerServiceImpl implements WorkerService {
                 log.info("Successfully registered");
 
                 return Optional.of(response);
-            }else{
+            } else {
                 log.error("Invalid password! Please check that the password matches the requirements");
             }
         }
@@ -71,8 +72,7 @@ public class WorkerServiceImpl implements WorkerService {
                     return Optional.of(incomeTaxDTO);
                 }
                 double incomeTax = worker.get().getSalary() * irrf.getTax();
-                incomeTaxDTO.setMessage(SecurityUtils
-                        .mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax, String.valueOf(irrf.getTax() * 100).substring(0, 5)));
+                incomeTaxDTO.setMessage(SecurityUtils.mountMessage(worker.get().getName(), worker.get().getSalary(), incomeTax, String.valueOf(irrf.getTax() * 100).substring(0, 5)));
                 incomeTaxDTO.setTax(String.valueOf(irrf.getTax() * 100).substring(0, 5));
 
                 if (admDTO.isWantToPay()) {

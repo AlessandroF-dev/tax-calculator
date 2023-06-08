@@ -24,9 +24,9 @@
 
 # Regras de negócio
 
-- Documentar projeto com swagger [TO-DO]
 - Implementar front-end com Angular [TO-DO]
 - Refatorar código para limpeza dos métodos [TO-DO]
+- Documentar projeto com swagger [OK]
 - O mesmo e-mail só poderá ser cadastrado uma vez [OK]
 - A senha deve conter de 8 a 16 caracteres, um dígito, uma letra minúscula, uma letra maiúscula, um caractere especial e não conter espaço em branco [OK]
 - O delete será lógico que irá inativar o usuário [OK]
