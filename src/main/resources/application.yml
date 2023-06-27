@@ -1,7 +1,19 @@
+server:
+  port: 8082
+
 spring:
+  application:
+    name: tax-api
   mvc:
-    pathmatch:
+    path match:
       matching-strategy: ANT_PATH_MATCHER
+
+  # Liquibase
+  spring:
+    liquibase:
+      change-log: classpath:db/changelog/db.changelog-master.yaml
+      user: worker
+      password: worker
 
   datasource:
     driverClassName: com.mysql.jdbc.Driver
@@ -12,3 +24,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8081/eureka/

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230626-inserttax
+      author: alessandro
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/20230626-inserttax-1.sql
+        - rollback:
+            path: db/changelog/sql/20230626-inserttax-rollback-1.sql

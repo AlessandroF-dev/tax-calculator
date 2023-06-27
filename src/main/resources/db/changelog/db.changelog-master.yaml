@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - preConditions:
+      runningAS:
+        username: liquibase
+  - include:
+      file: db/changelog/versions/db.changelog-1.0.0.yaml
