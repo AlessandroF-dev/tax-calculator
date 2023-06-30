@@ -8,7 +8,7 @@
 - POST: /[calculator] taxCalculator (WorkerAdmDTO admDTO)
 - GET: /[taxMeter] impostometro ()
 - GET: /[] getAll()
-- 
+
 ## Model
 
 - Worker: 
@@ -39,6 +39,10 @@
 - Spring Validation
 - Spring cache
 - Spring Data JPA
+- Spring Security
+- Spring Eureka
+- Spring Gateway
+- Liquibase
 - LOMBOK
 - BCrypt
 - Docker
