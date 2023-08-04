@@ -24,7 +24,7 @@
 
 # Regras de negócio
 
-- Implementar front-end com Angular [TO-DO]
+- Implementar front-end com Angular [BACKLOG]
 - Refatorar código para limpeza dos métodos [TO-DO]
 - Documentar projeto com swagger [OK]
 - O mesmo e-mail só poderá ser cadastrado uma vez [OK]
